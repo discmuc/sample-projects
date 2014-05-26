@@ -1,6 +1,7 @@
 package org.code2bytes.samples.lambda;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +24,13 @@ public class PersonListTest {
 
 	@Test
 	public void testArraySize() {
-		assertEquals("Array should contain 4 elements", 4, persons.size());
+		assertThat("array contains 4 elements", 4, equalTo(4));
 	}
 
 	@Test
-	public void testForEach() {
-		persons.forEach(p -> System.out.println(p.getAgeInYears()));
+	public void testSum() {
+		Integer total = persons.parallelStream().map(p -> p.getAgeInYears())
+				.reduce((sum, p) -> sum + p).get();
+		assertThat("sum should be 86", 86, equalTo(total));
 	}
 }
