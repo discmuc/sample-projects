@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
 import org.junit.Before;
@@ -27,20 +29,23 @@ public class PersonListTest {
 
 	@Test
 	public void testArraySize() {
-		assertThat("array contains 4 elements", 4, equalTo(4));
+		assertThat("array contains 4 elements", persons.size(), equalTo(4));
 	}
 
 	@Test
 	public void testSumOfAges() {
 		Integer total = persons.parallelStream().map(p -> p.getAgeInYears())
 				.reduce((sum, p) -> sum + p).get();
-		assertThat("sum should be 86", 86, equalTo(total));
+		assertThat("sum should be 86", total, equalTo(86));
 	}
 
 	@Test
 	public void testPersonList() {
-		persons.parallelStream().map(p -> p.getName())
-				.forEach(name -> System.out.println(name));
+		BinaryOperator<String> concat = (str, p) -> str = str + ", " + p;
+		Optional<String> output = persons.parallelStream()
+				.map(p -> p.getName()).reduce(concat);
+		String expected = "Test Person 1, Test Person 2, Test Person 3, Test Person 4";
+		assertThat("names should be concated", output.get(), equalTo(expected));
 	}
 
 	@Test
@@ -52,5 +57,12 @@ public class PersonListTest {
 		boolean matchAny = persons.stream().map(p -> p.getAgeInYears())
 				.anyMatch(isOlderThan22);
 		assertTrue("there is at least one persons of age 23 or older", matchAny);
+	}
+
+	@Test
+	public void testCountPersonsOverTwenty() {
+		long count = persons.stream().filter(p -> (p.getAgeInYears() > 20))
+				.count();
+		assertThat("3 persons are over 20", count, equalTo(3L));
 	}
 }
