@@ -42,7 +42,7 @@ public class PersonListTest {
 	@Test
 	public void testPersonList() {
 		BinaryOperator<String> concat = (str, p) -> str = str + ", " + p;
-		Optional<String> output = persons.parallelStream()
+		Optional<String> output = persons.stream()
 				.map(p -> p.getName()).reduce(concat);
 		String expected = "Test Person 1, Test Person 2, Test Person 3, Test Person 4";
 		assertThat("names should be concated", output.get(), equalTo(expected));
@@ -51,17 +51,17 @@ public class PersonListTest {
 	@Test
 	public void testPredicateTerm() {
 		Predicate<Integer> isOlderThan22 = age -> age > 22;
-		boolean matchAll = persons.stream().map(p -> p.getAgeInYears())
+		boolean matchAll = persons.parallelStream().map(p -> p.getAgeInYears())
 				.allMatch(isOlderThan22);
 		assertFalse("there are persons of age 22 or below", matchAll);
-		boolean matchAny = persons.stream().map(p -> p.getAgeInYears())
+		boolean matchAny = persons.parallelStream().map(p -> p.getAgeInYears())
 				.anyMatch(isOlderThan22);
 		assertTrue("there is at least one persons of age 23 or older", matchAny);
 	}
 
 	@Test
 	public void testCountPersonsOverTwenty() {
-		long count = persons.stream().filter(p -> (p.getAgeInYears() > 20))
+		long count = persons.parallelStream().filter(p -> (p.getAgeInYears() > 20))
 				.count();
 		assertThat("3 persons are over 20", count, equalTo(3L));
 	}
